@@ -50,12 +50,12 @@ module.exports = {
     },
 
     async create(req, res) {
-        const { nome, curso, semestre, email, senha } = req.body;
+        const { nome, curso, semestre, email, senha, telefone } = req.body;
 
         const hashPassword = await bcrypt.hash(senha, 10);
 
-    client.query(`INSERT INTO alunos (nome, curso, semestre, email, senha)
-    VALUES ('${nome}', '${curso}', ${semestre}, '${email}', '${hashPassword}')`, (err, result) => {
+    client.query(`INSERT INTO alunos (nome, curso, semestre, email, senha, telefone)
+    VALUES ('${nome}', '${curso}', ${semestre}, '${email}', '${hashPassword}', '${telefone}')`, (err, result) => {
         if(err) {
             if (err.code == '23505') {
                 return res.status(401).json({error: 'error', message:'Email já está sendo utilizado.'}); 
@@ -88,12 +88,12 @@ module.exports = {
     async update(req, res) {
         const { id } = req.params;
         const authAlunoId = req.alunoId;
-        const { nome, curso, semestre } = req.body;
+        const { nome, curso, semestre, telefone } = req.body;
 
         if (Number(authAlunoId) !== Number(id)) {
             return res.status(401).json({message:'Usuário não tem permissão para acessar esse recurso.'});
         }
-        client.query(`UPDATE alunos SET nome='${nome}', curso='${curso}', semestre=${semestre} WHERE id=${id}`, (err, result) => {
+        client.query(`UPDATE alunos SET nome='${nome}', curso='${curso}', semestre=${semestre}, telefone='${telefone}' WHERE id=${id}`, (err, result) => {
             if(err) {
                 console.log(err)
                 return res.status(401).json({message:'error running query'});
