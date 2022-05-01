@@ -30,3 +30,14 @@ API with simple crud and deploy heroku for one college discipline
 |**DELETE** | `Base_url`/encontros/excluir/:id | Remover um encontro da base de dados | `parameter:` Id do encontro | true |
 |**POST**	|`Base_url`/encontros | Registrar um encontro |`body:` {assunto_id: int, data: 'string'}		   | true |
 |**POST**	|`Base_url`/encontros/add/aluno | Adicionar aluno a encontro |`body:` {aluno_id: int, encontro_id: int}		   | true |
+
+##### ASSUNTOS
+
+
+| Verbo | Endereço			 	| Descrição 							| O que passar | Protegida? |
+|-		|	   	  			-	|	-   								| - 		   | -     |
+|**GET**	|`Base_url`/assuntos 	|Lista os assuntos cadastrados 		 	|			   | false |
+|**GET**	|`Base_url`/assuntos/:id 	|Detalhes de um assunto| `parameter:` Id do assunto | false |
+|**PUT**	|`Base_url`/assuntos/atualizar/:id | Atualizar informações de um assunto | `parameter:` Id do assunto; `body:` {nome: 'string', grau_dificuldade: int, tempo_necessario: int }		   | true |
+|**DELETE** | `Base_url`/assunto/excluir/:id | Remover um assunto da base de dados | `parameter:` Id do assunto | true |
+|**POST**	|`Base_url`/assuntos | Registrar um assunto |`body:` {nome: 'string', grau_dificuldade: int, tempo_necessario: int}		   | true |
