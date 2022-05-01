@@ -1,14 +1,6 @@
 const { initDatabase } = require('../database/index');
-const jwt = require('jsonwebtoken');
-const authConfig = require('../config/auth.json');
-const bcrypt = require('bcrypt');
 const client = initDatabase();
 
-const generateToken = (params = {}) => {
-    return jwt.sign(params, authConfig.secret, {
-        expiresIn: 86400 // one day
-    })
-}
 
 module.exports = {
     async list(req, res) {

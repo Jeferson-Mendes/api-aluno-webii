@@ -4,13 +4,11 @@ const authMiddleware = require('../middlewares/auth');
 
 const AssuntoRouter = Router();
 
-AssuntoRouter.use(authMiddleware);
-
 AssuntoRouter.get('/', AssuntoController.list)
 AssuntoRouter.get('/:id', AssuntoController.detail)
-AssuntoRouter.put('/atualizar/:id', AssuntoController.update)
-AssuntoRouter.post('/', AssuntoController.create)
-AssuntoRouter.delete('/excluir/:id', AssuntoController.delete)
+AssuntoRouter.put('/atualizar/:id', authMiddleware, AssuntoController.update)
+AssuntoRouter.post('/', authMiddleware, AssuntoController.create)
+AssuntoRouter.delete('/excluir/:id', authMiddleware, AssuntoController.delete)
 
 
 module.exports = AssuntoRouter;
