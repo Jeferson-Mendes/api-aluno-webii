@@ -4,13 +4,23 @@ const client = initDatabase();
 
 module.exports = {
     async list(req, res) {
-        client.query('SELECT * FROM encontros', (err, result) => {
-            if(err) {
-                console.log(err)
-                return res.status(401).json({message:'error running query'});
-            }
-            return res.json({ assuntos: result.rows, status: 200 });
-        })
+        const sql = `select encontros.id,
+                            encontros.assunto_id,
+                            encontros.data,
+                            assuntos.nome,
+                            assuntos.grau_dificuldade,
+                            assuntos.tempo_necessario
+                    from encontros
+                    inner join assuntos ON encontros.assunto_id=assuntos.id`
+
+        client.query(sql, (err, result) => {
+        if(err) {
+            console.log(err)
+            return res.status(401).json({message:'error running query'});
+        }
+
+        return res.json({ encontros: result.rows, status: 200 })
+    })
     },
 
     async create(req, res) {
@@ -36,38 +46,60 @@ module.exports = {
 
     async detail(req, res) {
         const { id } = req.params;
-    client.query(`select * from (select enc.id, enc.data, enc.assunto_id, alunos.nome as aluno_nome, alunos.curso, alunos.email, alunos.semestre from (SELECT encontros.id as id, encontros.assunto_id, encontros.data, aluno_encontro.aluno_id FROM
-                (SELECT * FROM encontros WHERE id=${id}) as encontros
-                INNER JOIN aluno_encontro ON encontros.id=aluno_encontro.encontro_id) as enc
-                inner join alunos on enc.aluno_id=alunos.id) as e inner join assuntos as assunto on e.assunto_id=assunto.id`, (err, result) => {
-        if(err) {
-            console.log(err)
-            return res.status(401).json({message:'error running query'});
-        }
 
-        const encontro = result.rows.map(encontro => ({
-            id: encontro.id,
-			data: encontro.data,
-			assunto_id: encontro.assunto_id
-        }))
+        let alunos = [];
+        const alunoSql = `select alunos.id as alunoId,
+                alunos.nome,
+                alunos.curso,
+                alunos.semestre,
+                alunos.email,
+                alunos.telefone,
+                aluno_encontro.encontro_id
+                        from alunos
+                        inner join aluno_encontro ON ${id}=aluno_encontro.encontro_id and aluno_encontro.aluno_id=alunos.id`
 
-        const assunto = {
-            nome: result.rows[0].nome,
-			grau_dificuldade: result.rows[0].grau_dificuldade,
-			tempo_necessario: result.rows[0].tempo_necessario,
-        }
+        client.query(alunoSql, (err, result) => {
+            alunos.push(result.rows);
+        })
 
-        const encontroUser = result.rows.map(encontro => ({
-            nome: encontro.aluno_nome,
-			curso: encontro.curso,
-			email: encontro.email,
-			semestre: encontro.semestre,
-        }))
+        const sql = `select encontros.id as encontroId,
+                            encontros.assunto_id,
+                            encontros.data,
+                            assuntos.nome,
+                            assuntos.grau_dificuldade,
+                            assuntos.tempo_necessario
+                    from encontros
+                    inner join assuntos ON encontros.assunto_id=assuntos.id
+                    where encontros.id=${id}
+                    `;
+        client.query(sql, (err, result) => {
+            if(err) {
+                console.log(err)
+                return res.status(401).json({message:'error running query'});
+            }
 
-        const serializedUser = Object.assign(encontro[0], { assunto: assunto }, { alunos: encontroUser })
+            if (!result.rows.length) {
+                return res.status(400).json({message:'Grupo não encontrado'})
+            }
 
-        return res.json({ encontro: serializedUser, status: 200 })
-    })
+            // console.log(result.rows)
+
+            const encontro = result.rows.map(encontro => ({
+                id: encontro.encontroid,
+    			data: encontro.data,
+    			assunto_id: encontro.assunto_id
+            }))
+
+            const assunto = {
+                nome: result.rows[0].nome,
+    			grau_dificuldade: result.rows[0].grau_dificuldade,
+    			tempo_necessario: result.rows[0].tempo_necessario,
+            }
+
+            const serializedUser = Object.assign(encontro[0], { assunto: assunto }, { alunos: alunos[0] })
+
+            return res.json({ encontro: serializedUser, status: 200 })
+        })
     },
 
     async update(req, res) {
